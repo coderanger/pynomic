@@ -6,6 +6,7 @@ from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import login_required
 from google.appengine.ext import db
 
+from nomic.browser import BrowserHandler
 from nomic.proposal import CreateProposalHandler
 from nomic.util import _user
 
@@ -18,5 +19,6 @@ class MainHandler(webapp.RequestHandler):
 
 routes = [
     ('/', MainHandler),
+    ('/browser(?:/(.*))?', BrowserHandler),
     ('/proposal/create', CreateProposalHandler),
 ]

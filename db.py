@@ -6,3 +6,6 @@ class File(db.Model):
     version = db.IntegerProperty()
     last_modified = db.DateTimeProperty(auto_now=True)
 
+    @property
+    def size(self):
+        return len(self.data)

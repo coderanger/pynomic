@@ -72,6 +72,7 @@ class Loader(object):
             else:
                 code = 'from __future__ import absolute_import\n' + code_file.data
             mod.__dict__['template'] = self.template_wrapper
+            mod.__dict__['__NomicFile__'] = File
             exec code in mod.__dict__
             if '.' in name:
                 parent_name, child_name = name.rsplit('.', 1)

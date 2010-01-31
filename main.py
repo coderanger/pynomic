@@ -62,7 +62,7 @@ class MainHandler(webapp.RequestHandler):
         if handler:
             handler.get(*groups)
         else:
-            response.set_status(404)
+            self.response.set_status(404)
     
     def _compile_routes(self, routes):
         if routes is self.last_routes:

@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block content %}
+<form method="post">
+  <textarea name="data" rows="30" cols="80">{{ code_data }}</textarea>
+  <p>
+    <input type="submit" name="save" value="Save" />
+  </p>
+</form>
+{% endblock %}

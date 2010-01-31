@@ -43,8 +43,8 @@ def _user(self):
 class MainHandler(webapp.RequestHandler):
     
     def __init__(self):
-        self.last_routes = None
-        self.compiled_routes = None
+        self.last_routes = []
+        self.compiled_routes = []
     
     def get(self, path='/'):
         import nomic.main
@@ -67,10 +67,17 @@ class MainHandler(webapp.RequestHandler):
     def _compile_routes(self, routes):
         if routes is self.last_routes:
             return
-        self.compiled_routes = [
-            (re.compile(regexp), handler_class)
-            for regexp, handler_class in routes
-        ]
+        # self.compiled_routes = [
+        #     (re.compile(regexp), handler_class)
+        #     for regexp, handler_class in routes
+        # ]
+        del self.compiled_routes[:]
+        for regexp, handler_class in routes:
+            if not regexp.startswith('^'):
+                regexp = '^' + regexp
+            if not regexp.endswith('$'):
+                regexp += '$'
+            self.compiled_routes.append((re.compile(regexp), handler_class))
         self.last_routes = routes
 
 
@@ -120,7 +127,10 @@ class EditHandler(webapp.RequestHandler):
             mod_name = 'nomic.' + path.replace('/', '.')[:-3]
             mod = sys.modules.get(mod_name)
             if mod:
-                reload(mod)
+                try:
+                    reload(mod)
+                except:
+                    pass
         self.redirect(self.request.path)
 
 

@@ -183,7 +183,10 @@ class AdminHandler(webapp.RequestHandler):
                 mod_name = 'nomic.' + path[:-3].replace('/', '.')
                 mod = sys.modules.get(mod_name)
                 if mod is not None:
-                    reload(mod)
+                    try:
+                        reload(mod)
+                    except:
+                        pass
 
 
 def main():

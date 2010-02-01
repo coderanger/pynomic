@@ -10,12 +10,18 @@ div#header h1{width:770px;margin:0 auto;text-align:left}
 div#menu{width:870px;margin:0 auto;text-align:left}
 div#header h1{padding: 30px 0 20px;color: #fff}
 
-ul#nav,ul#nav li{list-style-type:none;margin:0;padding:0}
+ul#nav,ul#nav li,ul#userbar,ul#userbar li{list-style-type:none;margin:0;padding:0}
 ul#nav{float:left;font-size: 80%}
-ul#nav li{float:left;margin-left: 3px;text-align: center}
-ul#nav a{float:left;width: 95px;padding: 5px 0;background: #E7F1F8;text-decoration:none;color: #666; border-top : 1px solid #fff; border-left : 1px solid #fff; border-right : 1px solid #fff;}
-ul#nav a:hover{background: #fff;color: #000}
-ul#nav li.activelink a,ul#nav li.activelink a:hover{background: #FFF;color: #003}
+ul#userbar{float:right;font-size: 80%}
+ul#nav li,ul#userbar li{float:left;margin-left: 3px;text-align: center}
+ul#nav a,ul#userbar a,ul#userbar span{float:left;width: 95px;padding: 5px 0;background: #E7F1F8;text-decoration:none;color: #666; border-top : 1px solid #fff; border-left : 1px solid #fff; border-right : 1px solid #fff;}
+ul#userbar span{width: auto;padding: 5px 7px;}
+ul#nav a:hover,ul#userbar a:hover;{background: #fff;color: #000}
+ul#nav li.activelink a,ul#nav li.activelink a:hover,
+ul#userbar li.activelink a,ul#userbar li.activelink a:hover{background: #FFF;color: #003}
+
+
+
 
 #right {
 	float: left;

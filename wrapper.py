@@ -10,6 +10,8 @@ import django.template.loader
 from db import File
 
 class TemplateWrapper(object):
+    def __init__(self):
+        self.template_cache = {}
     
     def _replace_loader(self, new):
         old = django.template.loader.template_source_loaders
@@ -17,7 +19,7 @@ class TemplateWrapper(object):
         return old
     
     def _loader(self, name, dirs=None):
-        name = name[:-14]
+        #name = name[:-14]
         template_file = File.get_by_key_name('templates/'+name)
         if not template_file:
             raise TemplateDoesNotExist, '%s not found'%name
@@ -33,10 +35,25 @@ class TemplateWrapper(object):
         #    return template.load(path, debug)
         
         old_loaders = self._replace_loader([self._loader])
+        old_cache = template.template_cache
+        template.template_cache = self.template_cache
         try:
-            t = template.load(path+'.fromdatastore', debug)
+            t = template.load(path, debug)
         finally:
             self._replace_loader(old_loaders)
+            template.template_cache = old_cache
+        
+        old_render = t.render
+        def render_wrapper(*args):
+            old_loaders = self._replace_loader([self._loader])
+            old_cache = template.template_cache
+            template.template_cache = self.template_cache
+            try:
+                return old_render(*args)
+            finally:
+                self._replace_loader(old_loaders)
+                template.template_cache = old_cache
+        t.render = render_wrapper
         return t
     
     Template = template.Template

@@ -18,6 +18,7 @@ import sys
 import os
 import logging
 import re
+import mimetypes
 from copy import copy
 
 from google.appengine.ext import webapp
@@ -79,6 +80,20 @@ class MainHandler(webapp.RequestHandler):
                 regexp += '$'
             self.compiled_routes.append((re.compile(regexp), handler_class))
         self.last_routes = routes
+
+
+class HtdocsHandler(webapp.RequestHandler):
+    
+    def get(self, path=None):
+        f = File.get_by_key_name('htdocs/'+path)
+        if f:
+            mime_type, encoding = mimetypes.guess_type(path, False)
+            if not mime_type:
+                mime_type = 'application/octet-stream'
+            self.response.headers['Content-Type'] = mime_type
+            self.response.out.write(f.data)
+        else:
+            self.error(404)
 
 
 class RunHandler(webapp.RequestHandler):
@@ -176,6 +191,7 @@ def main():
     MetaImporter.install()
     application = webapp.WSGIApplication([('/edit/(.*)', EditHandler),
                                           ('/admin', AdminHandler),
+                                          ('/htdocs/(.*)', HtdocsHandler),
                                           ('/(.*)', MainHandler)
                                          ], debug=True)
     run_wsgi_app(application)

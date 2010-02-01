@@ -4,9 +4,9 @@ runtime: python
 api_version: 1
 
 handlers:
-- url: .*
-  script: main.py
-
 - url: /favicon.ico
   static_files: static/cog.ico
   upload: static/cog.ico
+
+- url: .*
+  script: main.py

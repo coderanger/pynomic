@@ -23,7 +23,7 @@ ul#userbar li.activelink a,ul#userbar li.activelink a:hover{background: #FFF;col
 
 
 
-#right {
+.content_right {
 	float: left;
 	width: 76%;
 	padding: 1em;

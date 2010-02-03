@@ -13,7 +13,7 @@
 {% endblock %}
 
 {% block content %}
-<div id="right">
+<div id="browser" class="content_right">
   <div id="browser_path">
     <a href="/browser" class="root">[root]</a>
     {% for seg in path_segs %}
@@ -21,6 +21,12 @@
     {% endfor %}
   </div>
   <table>
+    {% if up_path %}
+    <tr>
+      <td><a class="up_link" href="{{ up_path }}">..</a></td>
+      <td></td>
+    </tr>
+    {% endif %}
     {% for f in files %}
     <tr>
       {% if f.is_dir %}

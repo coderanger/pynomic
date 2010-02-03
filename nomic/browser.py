@@ -40,5 +40,6 @@ class BrowserHandler(webapp.RequestHandler):
                 })
         up_path = None
         if path:
-            up_path = '/'.join(path.rstrip('/').split('/')[:-1])
+            up_path = '/browser/' + '/'.join(path.rstrip('/').split('/')[:-1])
+            up_path = up_path.rstrip('/')
         self.response.out.write(template.render('templates/browser.html', locals()))

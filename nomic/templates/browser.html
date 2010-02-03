@@ -1,19 +1,37 @@
 {% extends "base.html" %}
 
+{% block css %}
+<style type="text/css">
+  #browser_path {
+    font-size: 130%;
+  }
+  
+  #browser_path .root {
+    color: #555;
+  }
+</style>
+{% endblock %}
+
 {% block content %}
 <div id="right">
-<table>
-  {% for f in files %}
-  <tr>
-    {% if f.is_dir %}
-    <td><a href="/browser/{{ f.name }}">{{ f.name }}</a></td>
-    <td></td>
-    {% else %}
-    <td>{{ f.name }}</td>
-    <td>{{ f.file.size }}</td>
-    {% endif %}
-  </tr>
-  {% endfor %}
-</table>
+  <div id="browser_path">
+    <a href="/browser" class="root">[root]</a>
+    {% for seg in path_segs %}
+    / <a href="{{ seg.path }}">{{ seg.seg }}</a>
+    {% endfor %}
+  </div>
+  <table>
+    {% for f in files %}
+    <tr>
+      {% if f.is_dir %}
+      <td><a href="/browser/{{ f.name }}">{{ f.name }}</a></td>
+      <td></td>
+      {% else %}
+      <td>{{ f.name }}</td>
+      <td>{{ f.file.size }}</td>
+      {% endif %}
+    </tr>
+    {% endfor %}
+  </table>
 </div>
 {% endblock %}

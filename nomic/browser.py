@@ -9,6 +9,13 @@ class BrowserHandler(webapp.RequestHandler):
         user, user_admin, user_url = _user(self)
         if not path:
             path = ''
+            path_segs = []
+        else:
+            path_segs = []
+            buf = ''
+            for seg in path.rstrip('/').split('/'):
+                buf += seg
+                path_segs.append({'path':buf, 'seg':seg})
         if path and not path.endswith('/'):
             path += '/'
         files = []

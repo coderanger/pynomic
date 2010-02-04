@@ -30,7 +30,10 @@
 <div id="right">
   <div class="box">
     <ul>
-      <li><a href="/proposal">Create proposal</a></li>
+      <li><a href="/proposal/create?path={{ path }}">Create proposal</a></li>
+      {% if user_admin %}
+      <li><a href="/edit/{{ path }}">Edit</a></li>
+      {% endif %}
     </ul>
   </div>
 </div>

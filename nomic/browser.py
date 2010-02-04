@@ -59,7 +59,7 @@ class BrowserHandler(webapp.RequestHandler):
     def _get_file(self, path, path_segs, file):
         user, user_admin, user_url = _user(self)
         lexer = pygments.lexers.guess_lexer_for_filename(file.name, file.data)
-        formatter = pygments.formatters.get_formatter_by_name('html', linenos='table', lineanchors='line', anchorlinenos=True)
+        formatter = pygments.formatters.get_formatter_by_name('html', linenos='table', lineanchors='line', anchorlinenos=True, nobackground=True)
         highlighted = pygments.highlight(file.data, lexer, formatter)
         pygments_css = formatter.get_style_defs('  #browser .code')
         self.response.out.write(template.render('templates/browser_file.html', locals()))

@@ -11,13 +11,11 @@
   }
   
 {{ pygments_css }}
-
-  #browser .code  { background: inherit; }
 </style>
 {% endblock %}
 
 {% block content %}
-<div id="browser" class="content_right">
+<div id="browser">
   <div id="browser_path">
     <a href="/browser" class="root">[root]</a>
     {% for seg in path_segs %}
@@ -26,6 +24,14 @@
   </div>
   <div class="code">
   {{ highlighted }}
+  </div>
+</div>
+
+<div id="right">
+  <div class="box">
+    <ul>
+      <li><a href="/proposal">Create proposal</a></li>
+    </ul>
   </div>
 </div>
 {% endblock %}

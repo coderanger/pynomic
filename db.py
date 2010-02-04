@@ -9,3 +9,8 @@ class File(db.Model):
     @property
     def size(self):
         return len(self.data)
+    
+    @classmethod
+    def from_path(cls, path):
+        return cls.get_by_key_name(path)
+        

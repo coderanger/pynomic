@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block css %}
+<style type="text/css">
+  #browser_path {
+    font-size: 130%;
+  }
+  
+  #browser_path .root {
+    color: #555;
+  }
+  
+{{ pygments_css }}
+
+  #browser .code  { background: inherit; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="browser" class="content_right">
+  <div id="browser_path">
+    <a href="/browser" class="root">[root]</a>
+    {% for seg in path_segs %}
+    / <a href="/browser{{ seg.path }}">{{ seg.seg }}</a>
+    {% endfor %}
+  </div>
+  <div class="code">
+  {{ highlighted }}
+  </div>
+</div>
+{% endblock %}

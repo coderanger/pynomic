@@ -183,6 +183,8 @@ class AdminHandler(webapp.RequestHandler):
             db_file.delete()
         for dir, dirs, files in os.walk('nomic'):
             for name in files:
+                if name.startswith('.'):
+                    continue
                 path = os.path.join(dir, name)[6:]
                 db_file = File.get_by_key_name(path)
                 if not db_file:

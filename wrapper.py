@@ -87,7 +87,7 @@ class Loader(object):
                 mod.__path__ = []
                 code = ''
             else:
-                code = 'from __future__ import absolute_import\n' + code_file.data
+                code = 'from __future__ import absolute_import\n' + code_file.data + '\n\n'
             mod.__dict__['template'] = self.template_wrapper
             mod.__dict__['__NomicFile__'] = File
             exec code in mod.__dict__

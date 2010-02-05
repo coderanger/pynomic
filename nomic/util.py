@@ -15,3 +15,8 @@ def _user(self):
         user = None
         url = users.create_login_url(self.request.uri)
     return user, is_admin, url
+
+def send_error(handler, msg, *args):
+    handler.response.set_status(500)
+    msg = msg % args
+    handler.response.out.write(template.render('templates/error.html', locals()))

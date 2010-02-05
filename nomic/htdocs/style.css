@@ -20,9 +20,6 @@ ul#nav a:hover,ul#userbar a:hover;{background: #fff;color: #000}
 ul#nav li.activelink a,ul#nav li.activelink a:hover,
 ul#userbar li.activelink a,ul#userbar li.activelink a:hover{background: #FFF;color: #003}
 
-
-
-
 #content > div:first-child {
 	float: left;
 	width: 77%;

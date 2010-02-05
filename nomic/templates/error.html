@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block css %}
+  <style type="text/css">
+    #content #error {
+      background-color: #FFF6BF;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+<div id="error">
+  {{ msg }}
+</div>
+{% endblock %}

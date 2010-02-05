@@ -48,6 +48,15 @@ class MainHandler(webapp.RequestHandler):
         self.compiled_routes = []
     
     def get(self, path='/'):
+        self._handle('get', path)
+    
+    def post(self, path='/'):
+        self._handle('post', path)
+    
+    def head(self, path='/'):
+        self._handle('head', path)
+    
+    def _handle(self, handler_type, path='/'):
         import nomic.main
         handler = None
         groups = ()
@@ -61,7 +70,7 @@ class MainHandler(webapp.RequestHandler):
             break
         
         if handler:
-            handler.get(*groups)
+            getattr(handler, handler_type)(*groups)
         else:
             self.response.set_status(404)
     

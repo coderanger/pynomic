@@ -4,6 +4,9 @@
 <head>
 <title>{% block title %}PyNomic{% endblock %}</title>
 <link rel="stylesheet" type="text/css" href="/htdocs/style.css" media="screen" />
+{% for src in js_files %}
+<script type="text/javascript" src="{{ src }}"></script>
+{% endfor %}
 {% block css %}{% endblock %}
 </head>
 <body>

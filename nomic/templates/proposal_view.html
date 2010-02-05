@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block css %}
+<style type="text/css">
+{{ pygments_css }}
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="proposal">
+  <div class="code">
+  {{ highlighted }}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div id="proposal">
+  <form method="post">
+    <textarea name="data" rows="30" cols="80">{{ data }}</textarea>
+    <p>
+      <input type="submit" name="preview" value="Preview" />
+    </p>
+  </form>
+</div>
+
+<script type="text/javascript">
+$(function() {
+  $('textarea').tabby();
+});
+</script>
+{% endblock %}

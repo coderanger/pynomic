@@ -11,5 +11,12 @@
   <div class="code">
   {{ highlighted }}
   </div>
+  <form method="post">
+    <p>
+      {% if user_admin %}
+      <input type="submit" name="apply" value="Apply" />
+      {% endif %}
+    </p>
+  </form>
 </div>
 {% endblock %}

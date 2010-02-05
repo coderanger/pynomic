@@ -1,15 +1,20 @@
 import difflib
 
 from google.appengine.ext import webapp
+from google.appengine.api import users
+from google.appengine.ext.webapp.util import login_required
 import pygments
 import pygments.lexers
 import pygments.formatters
 
+
 from nomic.db import File, Proposal
 from nomic.util import _user, send_error
+from nomic.patch import fromstring
 
 class CreateProposalHandler(webapp.RequestHandler):
     
+    @login_required
     def get(self):
         user, user_admin, user_url = _user(self)
         path = self.request.get('path')
@@ -76,3 +81,16 @@ class ViewProposalHandler(webapp.RequestHandler):
         highlighted = pygments.highlight(prop.diff, lexer, formatter)
         pygments_css = formatter.get_style_defs('  #proposal .code')
         self.response.out.write(template.render('templates/proposal_view.html', locals()))
+    
+    def post(self, id):
+        if self.request.get('apply'):
+            self._handle_apply(id)
+    
+    def _handle_apply(self, id):
+        if not users.is_current_user_admin():
+            self.redirect(self.request.path)
+            return
+        prop = Proposal.get_by_id(int(id))
+        p = fromstring(prop.diff)
+        p.apply()
+        self.redirect('/browser/'+prop.path)

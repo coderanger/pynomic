@@ -20,9 +20,9 @@ class BrowserHandler(webapp.RequestHandler):
         files = []
         dirs = set()
         for f in File.all().fetch(1000):
-            if not f.name.startswith(path):
+            if not f.path.startswith(path):
                 continue
-            sub_path = f.name[len(path):]
+            sub_path = f.path[len(path):]
             if '/' in sub_path:
                 dir_path = sub_path[:sub_path.find('/')]
                 if dir_path not in dirs:
@@ -51,15 +51,16 @@ class BrowserHandler(webapp.RequestHandler):
         for seg in path.rstrip('/').split('/'):
             buf += '/' + seg 
             path_segs.append({'path':buf, 'seg':seg})
-        f = File.from_path(path)
+        f = File.from_path(path, version=self.request.get('version', None))
         if not f and not path.endswith('/'):
             path += '/'
         return path, path_segs, f
     
     def _get_file(self, path, path_segs, file):
         user, user_admin, user_url = _user(self)
-        lexer = pygments.lexers.guess_lexer_for_filename(file.name, file.data)
+        lexer = pygments.lexers.guess_lexer_for_filename(file.path, file.data)
         formatter = pygments.formatters.get_formatter_by_name('html', linenos='table', lineanchors='line', anchorlinenos=True, nobackground=True)
         highlighted = pygments.highlight(file.data, lexer, formatter)
         pygments_css = formatter.get_style_defs('  #browser .code')
+        latest_file = File.from_path(file.path)
         self.response.out.write(template.render('templates/browser_file.html', locals()))

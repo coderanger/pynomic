@@ -20,7 +20,7 @@ class TemplateWrapper(object):
     
     def _loader(self, name, dirs=None):
         #name = name[:-14]
-        template_file = File.get_by_key_name('templates/'+name)
+        template_file = File.from_path('templates/'+name)
         if not template_file:
             raise TemplateDoesNotExist, '%s not found'%name
         return template_file.data, 'datastore:'+name
@@ -70,7 +70,7 @@ class Loader(object):
         ispkg = '.' not in name
         do_reload = True
         if not ispkg:
-            code_file = File.get_by_key_name(path)
+            code_file = File.from_path(path)
             if not code_file:
                 raise ImportError, 'datastore:%s not found (%s)'%(path, name)
             mod = sys.modules.get(name)
@@ -90,7 +90,8 @@ class Loader(object):
                 code = 'from __future__ import absolute_import\n' + code_file.data + '\n\n'
             mod.__dict__['template'] = self.template_wrapper
             mod.__dict__['__NomicFile__'] = File
-            exec code in mod.__dict__
+            compiled = compile(code, mod.__file__, 'exec')
+            exec compiled in mod.__dict__
             if '.' in name:
                 parent_name, child_name = name.rsplit('.', 1)
                 setattr(sys.modules[parent_name], child_name, mod)

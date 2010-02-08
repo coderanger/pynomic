@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div id="proposal">
+  <table>
+    {% for prop in props %}
+    <tr>
+      <td>{{ prop.key.id }}</td>
+      <td><a href="/proposal/{{ prop.key.id }}">{{ prop.path }}</a></td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+{% endblock %}

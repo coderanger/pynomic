@@ -33,7 +33,7 @@
       <td><a href="/browser/{{ f.name }}">{{ f.name }}</a></td>
       <td></td>
       {% else %}
-      <td><a href="/browser/{{ f.file.name }}">{{ f.name }}</a></td>
+      <td><a href="/browser/{{ f.file.path }}">{{ f.name }}</a></td>
       <td>{{ f.file.size }}</td>
       {% endif %}
     </tr>

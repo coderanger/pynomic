@@ -94,3 +94,12 @@ class ViewProposalHandler(webapp.RequestHandler):
         p = fromstring(prop.diff)
         p.apply()
         self.redirect('/browser/'+prop.path)
+
+class ListProposalHandler(webapp.RequestHandler):
+    
+    def get(self):
+        user, user_admin, user_url = _user(self)
+        total_props = Proposal.all().count()
+        page = int(self.request.get('p', 1))-1
+        props = Proposal.all().fetch(10, page*10)
+        self.response.out.write(template.render('templates/proposal_list.html', locals()))

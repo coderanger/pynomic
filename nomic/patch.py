@@ -10,6 +10,7 @@
 __author__ = "techtonik.rainforce.org"
 __version__ = "9.08-2"
 
+import sys
 import copy
 import logging
 import re
@@ -454,8 +455,15 @@ class Patch(object):
 
     tgt.writelines(self.patchstream(src, hunks))
 
-    orig.data = tgt.getvalue()
-    orig.put()
+    orig.new_version(tgt.getvalue())
+    if orig.path.endswith('.py'):
+        mod_name = 'nomic.' + orig.path.replace('/', '.')[:-3]
+        mod = sys.modules.get(mod_name)
+        if mod:
+            try:
+                reload(mod)
+            except:
+                pass
 
     return True
   

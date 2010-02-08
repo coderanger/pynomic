@@ -94,7 +94,7 @@ class MainHandler(webapp.RequestHandler):
 class HtdocsHandler(webapp.RequestHandler):
     
     def get(self, path=None):
-        f = File.get_by_key_name('htdocs/'+path)
+        f = File.from_path('htdocs/'+path)
         if f:
             mime_type, encoding = mimetypes.guess_type(path, False)
             if not mime_type:
@@ -103,21 +103,6 @@ class HtdocsHandler(webapp.RequestHandler):
             self.response.out.write(f.data)
         else:
             self.error(404)
-
-
-class RunHandler(webapp.RequestHandler):
-    
-    def get(self, path=None):
-        user, user_admin, user_url = _user(self)
-        if not path:
-            path = 'index.py'
-        code_file = File.get_by_key_name(path)
-        if not code_file:
-            self.response.out.write(template.render('templates/run_404.html', locals()))
-        else:
-            g = copy(globals())
-            g['template'] = TemplateWrapper()
-            exec code_file.data in g, locals()
 
 
 class EditHandler(webapp.RequestHandler):
@@ -129,7 +114,7 @@ class EditHandler(webapp.RequestHandler):
             return
         if not path:
             self.redirect('/edit/index.py')
-        code_file = File.get_by_key_name(path)
+        code_file = File.from_path(path)
         code_data = ''
         if code_file:
             code_data = code_file.data
@@ -142,9 +127,9 @@ class EditHandler(webapp.RequestHandler):
         if not path:
             self.error(404)
             return
-        code_file = File.get_by_key_name(path)
+        code_file = File.from_path(path)
         if not code_file:
-            code_file = File(key_name=path, name=path)
+            code_file = File(key_name=path, path=path)
         code_file.data = self.request.get('data').replace('\r\n', '\n')
         code_file.put()
         if path.endswith('.py'):
@@ -181,23 +166,27 @@ class AdminHandler(webapp.RequestHandler):
     def _reset_files(self):
         for db_file in File.all().fetch(1000):
             db_file.delete()
+        reloads = []
         for dir, dirs, files in os.walk('nomic'):
             for name in files:
                 if name.startswith('.'):
                     continue
                 path = os.path.join(dir, name)[6:]
-                db_file = File.get_by_key_name(path)
+                db_file = File.from_path(path)
                 if not db_file:
-                    db_file = File(key_name=path, name=path)
+                    db_file = File(path=path)
                 db_file.data = open('nomic/'+path).read().replace('\r\n', '\n')
                 db_file.put()
-                mod_name = 'nomic.' + path[:-3].replace('/', '.')
-                mod = sys.modules.get(mod_name)
-                if mod is not None:
-                    try:
-                        reload(mod)
-                    except:
-                        pass
+                if path.endswith('.py'):
+                    mod_name = 'nomic.' + path[:-3].replace('/', '.')
+                    mod = sys.modules.get(mod_name)
+                    if mod is not None:
+                        reloads.append(mod)
+        for mod in reloads:
+            try:
+                reload(mod)
+            except:
+                pass
 
 
 def main():

@@ -4,6 +4,7 @@ File = __NomicFile__
 
 class User(db.Model):
     user = db.UserProperty()
+    last_login = db.DateTimeProperty()
     score = db.IntegerProperty(default=0)
 
 class Proposal(db.Model):

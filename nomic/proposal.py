@@ -68,6 +68,7 @@ class CreateProposalHandler(webapp.RequestHandler):
         prop = Proposal()
         prop.path = self.request.get('path')
         prop.diff = self.request.get('diff')
+        prop.state = 'private'
         prop.put()
         self.redirect('/proposal/%s'%prop.key().id())
 

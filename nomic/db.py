@@ -10,4 +10,9 @@ class Proposal(db.Model):
     user = db.UserProperty(auto_current_user_add=True)
     path = db.StringProperty()
     diff = db.TextProperty()
+    state = db.StringProperty()
+    # Valid states:
+    # private
+    # published
+    # applied
 

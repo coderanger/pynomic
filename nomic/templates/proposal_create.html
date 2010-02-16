@@ -1,8 +1,20 @@
 {% extends "base.html" %}
 
+{% block css %}
+<style type="text/css">
+#title {
+  width: 40em;
+}
+</style>
+{% endblock %}
+
 {% block content %}
 <div id="proposal">
   <form method="post">
+    <p>
+      <label for="title">Title:</label>
+      <input id="title" name="title" value="{{ title }}" />
+    </p>
     <textarea name="data" rows="30" cols="80">{{ data }}</textarea>
     <p>
       <input type="submit" name="preview" value="Preview" />

@@ -23,6 +23,7 @@ class CreateProposalHandler(webapp.RequestHandler):
             send_error(self, '%s not found', path)
             return
         data = f.data.replace('    ', '\t')
+        title = path
         
         js_files = [
             'http://ajax.googleapis.com/ajax/libs/jquery/1.4.1/jquery.min.js',
@@ -42,6 +43,7 @@ class CreateProposalHandler(webapp.RequestHandler):
         user, user_admin, user_url = _user(self)
         data = self.request.get('data').replace('\t', '    ').replace('\r\n', '\n')
         path = self.request.get('path')
+        title = self.request.get('title')
         old_file = File.from_path(path)
         new_lines = [line+'\n' for line in data.splitlines()]
         old_lines = [line+'\n' for line in old_file.data.splitlines()]
@@ -57,6 +59,7 @@ class CreateProposalHandler(webapp.RequestHandler):
         user, user_admin, user_url = _user(self)
         path = self.request.get('path')
         data = self.request.get('data').replace('    ', '\t')
+        title = self.request.get('title')
         js_files = [
             'http://ajax.googleapis.com/ajax/libs/jquery/1.4.1/jquery.min.js',
             '/htdocs/jquery.tabby.js',
@@ -66,6 +69,7 @@ class CreateProposalHandler(webapp.RequestHandler):
     def _handle_save(self):
         user, user_admin, user_url = _user(self)
         prop = Proposal()
+        prop.title = self.request.get('title')
         prop.path = self.request.get('path')
         prop.diff = self.request.get('diff')
         prop.state = 'private'
@@ -113,5 +117,5 @@ class ListProposalHandler(webapp.RequestHandler):
         user, user_admin, user_url = _user(self)
         total_props = Proposal.all().count()
         page = int(self.request.get('p', 1))-1
-        props = Proposal.all().fetch(10, page*10)
+        props = Proposal.all().order('-vote_total').fetch(10, page*10)
         self.response.out.write(template.render('templates/proposal_list.html', locals()))

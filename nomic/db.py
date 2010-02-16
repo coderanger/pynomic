@@ -27,6 +27,7 @@ class User(db.Model):
 
 class Proposal(db.Model):
     user = db.UserProperty(auto_current_user_add=True)
+    title = db.StringProperty()
     path = db.StringProperty()
     diff = db.TextProperty()
     state = db.StringProperty()

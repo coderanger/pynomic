@@ -5,8 +5,8 @@
   <table>
     {% for prop in props %}
     <tr>
-      <td>{{ prop.key.id }}</td>
-      <td><a href="/proposal/{{ prop.key.id }}">{{ prop.path }}</a></td>
+      <td>{{ prop.vote_total }}</td>
+      <td><a href="/proposal/{{ prop.key.id }}">{{ prop.title }}</a></td>
     </tr>
     {% endfor %}
   </table>

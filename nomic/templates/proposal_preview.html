@@ -8,10 +8,12 @@
 
 {% block content %}
 <div id="proposal">
+  <h1>{{ title }}</h1>
   <div class="code">
   {{ highlighted }}
   </div>
   <form method="post">
+    <input type="hidden" name="title" value="{{ title|escape }}" />
     <input type="hidden" name="data" value="{{ data|escape }}" />
     <input type="hidden" name="diff" value="{{ diff_data|escape }}" />
     <p>

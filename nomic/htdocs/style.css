@@ -2,7 +2,7 @@ html,body{margin:0;padding:0}
 body{font: 85%/1.3 TrebuchetMS,Arial,sans-serif;
     text-align: left;background: #fff;padding-bottom:20px}
 a { color: #0066B3; background: inherit; text-decoration: none;}
-h1 { font: bold 2.1em Arial, Arial, Sans-Serif; color: #036DA7 }
+h1 { font: bold 2.1em Arial, Arial, Sans-Serif; color: #036DA7; margin-top: 0; }
 h2 { font: bold 1.1em Arial, Arial, Sans-Serif; padding: 0; margin: 0; }
 
 div#header{width:100%;overflow:hidden;background: #BBD9EE; }

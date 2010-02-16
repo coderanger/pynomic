@@ -23,7 +23,7 @@
   </ul>
   <ul id="userbar">
     {% if user %}
-    <li><span>Hello {{ user.user.nickname }}</span></li>
+    <li><span>Hello {{ user.nickname }}</span></li>
     <li><a href="{{ user_url }}">Logout</a></li>
     {% else %}
     <li><a href="{{ user_url }}">Login</a></li>

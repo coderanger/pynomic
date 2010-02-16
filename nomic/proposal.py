@@ -81,11 +81,22 @@ class ViewProposalHandler(webapp.RequestHandler):
         formatter = pygments.formatters.get_formatter_by_name('html', nobackground=True)
         highlighted = pygments.highlight(prop.diff, lexer, formatter)
         pygments_css = formatter.get_style_defs('  #proposal .code')
+        vote = prop.get_vote(user)
+        up_vote = vote == 1
+        down_vote = vote == -1
         self.response.out.write(template.render('templates/proposal_view.html', locals()))
     
     def post(self, id):
         if self.request.get('apply'):
             self._handle_apply(id)
+        elif self.request.get('vote'):
+            user, user_admin, user_url = _user(self)
+            prop = Proposal.get_by_id(int(id))
+            vote = int(self.request.get('vote'))
+            prop.set_vote(user, vote)
+            self.redirect(self.request.path)
+        else:
+            self.redirect(self.request.path)
     
     def _handle_apply(self, id):
         if not users.is_current_user_admin():

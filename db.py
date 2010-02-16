@@ -2,7 +2,7 @@ from google.appengine.ext import db
 
 class File(db.Model):
     path = db.StringProperty()
-    data = db.TextProperty()
+    data = db.BlobProperty()
     version = db.IntegerProperty(default=0)
     last_modified = db.DateTimeProperty(auto_now=True)
 

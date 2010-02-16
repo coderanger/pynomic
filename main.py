@@ -175,7 +175,12 @@ class AdminHandler(webapp.RequestHandler):
                 db_file = File.from_path(path)
                 if not db_file:
                     db_file = File(path=path)
-                db_file.data = open('nomic/'+path).read().replace('\r\n', '\n')
+                db_file.data = open('nomic/'+path).read()
+                mime_type, encoding = mimetypes.guess_type(path, False)
+                if not mime_type:
+                    mime_type = 'application/octet-stream'
+                if mime_type.startswith('text'):
+                    db_file.data = db_file.data.replace('\r\n', '\n')
                 db_file.put()
                 if path.endswith('.py'):
                     mod_name = 'nomic.' + path[:-3].replace('/', '.')

@@ -5,7 +5,13 @@
   <table>
     {% for prop in props %}
     <tr>
-      <td>{{ prop.vote_total }}</td>
+      <td>
+        {% if prop.state == 'private' %}
+        <img src="/htdocs/img/lock.png" alt="Private proposal" />
+        {% else %}
+        {{ prop.vote_total }}
+        {% endif %}
+      </td>
       <td><a href="/proposal/{{ prop.key().id() }}">{{ prop.title }}</a></td>
     </tr>
     {% endfor %}

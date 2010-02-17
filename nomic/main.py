@@ -17,10 +17,18 @@ class MainHandler(webapp.RequestHandler):
         self.response.out.write(env.get_template('index.html').render(locals()))
 
 
+class AboutHandler(webapp.RequestHandler):
+    
+    def get(self):
+        user, user_admin, user_url = _user(self)
+        self.response.out.write(env.get_template('about.html').render(locals()))
+
+
 routes = [
     ('/', MainHandler),
     ('/browser(?:/(.*))?', BrowserHandler),
     ('/proposal/create', CreateProposalHandler),
-    ('/proposal/(\d*)', ViewProposalHandler),
+    ('/proposal/(\d+)', ViewProposalHandler),
     ('/proposal(?:/)?', ListProposalHandler),
+    ('/about', AboutHandler),
 ]

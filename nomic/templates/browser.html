@@ -17,7 +17,7 @@
   <div id="browser_path">
     <a href="/browser" class="root">[root]</a>
     {% for seg in path_segs %}
-    / <a href="{{ seg.path }}">{{ seg.seg }}</a>
+    / <a href="/browser{{ seg.path }}">{{ seg.seg }}</a>
     {% endfor %}
   </div>
   <table>
@@ -30,7 +30,7 @@
     {% for f in files %}
     <tr>
       {% if f.is_dir %}
-      <td><a href="/browser/{{ f.name }}">{{ f.name }}</a></td>
+      <td><a href="/browser/{{ f.path }}">{{ f.name }}</a></td>
       <td></td>
       {% else %}
       <td><a href="/browser/{{ f.file.path }}">{{ f.name }}</a></td>

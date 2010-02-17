@@ -27,9 +27,10 @@ from google.appengine.ext.webapp import template
 from google.appengine.ext import db
 from google.appengine.api.urlfetch import fetch
 from google.appengine.api import images, users
+import jinja2
 
 from db import File
-from wrapper import MetaImporter
+from wrapper import MetaImporter, TemplateLoader
 
 def _user(self):
     is_admin = users.is_current_user_admin()
@@ -46,6 +47,7 @@ class MainHandler(webapp.RequestHandler):
     def __init__(self):
         self.last_routes = []
         self.compiled_routes = []
+        #self.jinja_env = jinja2.Environment(loader=TemplateLoader())
     
     def get(self, path='/'):
         self._handle('get', path)
@@ -60,6 +62,8 @@ class MainHandler(webapp.RequestHandler):
         import nomic.main
         handler = None
         groups = ()
+        if not hasattr(nomic.main, 'routes'):
+            reload(nomic.main)
         self._compile_routes(nomic.main.routes)
         for regexp, handler_class in self.compiled_routes:
           match = regexp.match(self.request.path)
@@ -70,6 +74,10 @@ class MainHandler(webapp.RequestHandler):
             break
         
         if handler:
+            self.request._head_links = []
+            self.request._head_js = []
+            handler.env = jinja2.Environment(loader=TemplateLoader())
+            handler.env.globals['request'] = self.request
             getattr(handler, handler_type)(*groups)
         else:
             self.response.set_status(404)

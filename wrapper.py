@@ -20,8 +20,6 @@ class TemplateLoader(jinja2.BaseLoader):
 
 
 class Loader(object):
-    def __init__(self):
-        self.jinja_env = jinja2.Environment(loader=TemplateLoader())
     
     def load_module(self, name):
         logging.debug('Trying to load %s', name)
@@ -47,7 +45,6 @@ class Loader(object):
                 code = ''
             else:
                 code = 'from __future__ import absolute_import\n' + code_file.data + '\n\n'
-            mod.__dict__['env'] = self.jinja_env
             mod.__dict__['__NomicFile__'] = File
             compiled = compile(code, mod.__file__, 'exec')
             exec compiled in mod.__dict__

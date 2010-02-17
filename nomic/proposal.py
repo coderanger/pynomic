@@ -7,10 +7,10 @@ import pygments
 import pygments.lexers
 import pygments.formatters
 
-
 from nomic.db import File, Proposal
 from nomic.util import _user, send_error
 from nomic.patch import fromstring
+from nomic.chrome import add_stylesheet, add_script
 
 class CreateProposalHandler(webapp.RequestHandler):
     
@@ -25,11 +25,9 @@ class CreateProposalHandler(webapp.RequestHandler):
         data = f.data.replace('    ', '\t')
         title = path
         
-        js_files = [
-            'http://ajax.googleapis.com/ajax/libs/jquery/1.4.1/jquery.min.js',
-            '/htdocs/jquery.tabby.js',
-        ]
-        self.response.out.write(env.get_template('proposal_create.html').render(locals()))
+        add_script(self.request, 'http://ajax.googleapis.com/ajax/libs/jquery/1.4.1/jquery.min.js')
+        add_script(self.request, '/htdocs/jquery.tabby.js')
+        self.response.out.write(self.env.get_template('proposal_create.html').render(locals()))
     
     def post(self):
         if self.request.get('preview'):
@@ -53,7 +51,7 @@ class CreateProposalHandler(webapp.RequestHandler):
         formatter = pygments.formatters.get_formatter_by_name('html', nobackground=True)
         highlighted = pygments.highlight(diff_data, lexer, formatter)
         pygments_css = formatter.get_style_defs('  #proposal .code')
-        self.response.out.write(env.get_template('proposal_preview.html').render(locals()))
+        self.response.out.write(self.env.get_template('proposal_preview.html').render(locals()))
 
     def _handle_create(self):
         user, user_admin, user_url = _user(self)
@@ -64,7 +62,7 @@ class CreateProposalHandler(webapp.RequestHandler):
             'http://ajax.googleapis.com/ajax/libs/jquery/1.4.1/jquery.min.js',
             '/htdocs/jquery.tabby.js',
         ]
-        self.response.out.write(env.get_template('proposal_create.html').render(locals()))
+        self.response.out.write(self.env.get_template('proposal_create.html').render(locals()))
     
     def _handle_save(self):
         user, user_admin, user_url = _user(self)
@@ -86,7 +84,7 @@ class ViewProposalHandler(webapp.RequestHandler):
         highlighted = pygments.highlight(prop.diff, lexer, formatter)
         pygments_css = formatter.get_style_defs('  #proposal .code')
         vote = prop.get_vote(user)
-        self.response.out.write(env.get_template('proposal_view.html').render(locals()))
+        self.response.out.write(self.env.get_template('proposal_view.html').render(locals()))
     
     def post(self, id):
         if self.request.get('apply'):
@@ -116,4 +114,4 @@ class ListProposalHandler(webapp.RequestHandler):
         total_props = Proposal.all().count()
         page = int(self.request.get('p', 1))-1
         props = Proposal.all().order('-vote_total').fetch(10, page*10)
-        self.response.out.write(env.get_template('proposal_list.html').render(locals()))
+        self.response.out.write(self.env.get_template('proposal_list.html').render(locals()))

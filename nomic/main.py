@@ -4,7 +4,6 @@ import logging
 
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import login_required
-from google.appengine.ext import db
 
 from nomic.browser import BrowserHandler
 from nomic.proposal import CreateProposalHandler, ViewProposalHandler, ListProposalHandler

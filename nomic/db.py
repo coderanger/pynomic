@@ -1,6 +1,7 @@
 import logging
 
 from google.appengine.ext import db
+from google.appengine.ext.db import polymodel
 from google.appengine.api import memcache
 
 File = __NomicFile__
@@ -28,8 +29,6 @@ class User(db.Model):
 class Proposal(db.Model):
     user = db.UserProperty(auto_current_user_add=True)
     title = db.StringProperty()
-    path = db.StringProperty()
-    diff = db.TextProperty()
     state = db.StringProperty()
     # Valid states:
     # private
@@ -68,6 +67,45 @@ class Proposal(db.Model):
 
         db.run_in_transaction(txn)
         logging.debug('Proposal[%s] Recording %s voting %s', self.key().id(), user.email(), newvote)
+
+
+class Change(polymodel.PolyModel):
+    """Storage for a single change.
+    
+    Index
+      parent:   The proposal this change is part of.
+      
+    Properties:
+      path: The path to the file this is a diff for.
+    """
+    path = db.StringProperty()
+
+
+class PatchChange(Change):
+    """Storage for a single diff.
+    
+    Index
+      parent:   The proposal this change is part of.
+      
+    Properties:
+      path: The path to the file this is a diff for.
+      diff: The text of the diff.
+    """
+    diff = db.TextProperty()
+
+
+class BinaryChange(Change):
+    """Storage for a single binary change.
+    
+    Index
+      parent:   The proposal this change is part of.
+      
+    Properties:
+      path: The path to the file this is a diff for.
+      data: The new data for the file.
+    """
+    data = db.BlobProperty()
+
 
 
 class Vote(db.Model):

@@ -1,13 +1,13 @@
 import difflib
 
-from google.appengine.ext import webapp
+from google.appengine.ext import webapp, db
 from google.appengine.api import users
 from google.appengine.ext.webapp.util import login_required
 import pygments
 import pygments.lexers
 import pygments.formatters
 
-from nomic.db import File, Proposal
+from nomic.db import File, Proposal, Change, PatchChange
 from nomic.util import _user, send_error
 from nomic.patch import fromstring
 from nomic.chrome import add_stylesheet, add_script
@@ -64,12 +64,13 @@ class CreateProposalHandler(webapp.RequestHandler):
     
     def _handle_save(self):
         user, user_admin, user_url = _user(self)
-        prop = Proposal()
-        prop.title = self.request.get('title')
-        prop.path = self.request.get('path')
-        prop.diff = self.request.get('diff')
-        prop.state = 'private'
-        prop.put()
+        prop = Proposal(title=self.request.get('title'), state='private')
+        def txn():
+            prop.put()
+            change = PatchChange(parent=prop, path=self.request.get('path'), diff=self.request.get('diff'))
+            change.put()
+            
+        db.run_in_transaction(txn)
         self.redirect('/proposal/%s'%prop.key().id())
 
 class ViewProposalHandler(webapp.RequestHandler):
@@ -77,10 +78,10 @@ class ViewProposalHandler(webapp.RequestHandler):
     def get(self, id):
         user, user_admin, user_url = _user(self)
         prop = Proposal.get_by_id(int(id))
+        changes = Change.all().ancestor(prop).fetch(100)
         lexer = pygments.lexers.get_lexer_by_name('diff')
         formatter = pygments.formatters.get_formatter_by_name('html', nobackground=True)
-        highlighted = pygments.highlight(prop.diff, lexer, formatter)
-        pygments_css = formatter.get_style_defs('  #proposal .code')
+        highlighted = pygments.highlight(changes[0].diff, lexer, formatter)
         vote = prop.get_vote(user)
         add_stylesheet(self.request, '/pygments.css')
         self.response.out.write(self.env.get_template('proposal_view.html').render(locals()))

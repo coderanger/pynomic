@@ -29,7 +29,7 @@ from google.appengine.api.urlfetch import fetch
 from google.appengine.api import images, users
 
 from db import File
-from wrapper import TemplateWrapper, MetaImporter
+from wrapper import MetaImporter
 
 def _user(self):
     is_admin = users.is_current_user_admin()

@@ -26,20 +26,20 @@
     <ul>
       <li>
         <form method="post">
-          {% if down_vote %}
+          {% if vote == -1 %}
           <input type="image" src="/htdocs/img/thumb_down.png" alt="Undo vote down" name="vote" value="0" />
           {% else %}
           <input type="image" src="/htdocs/img/thumb_down_gray.png" alt="Vote down" name="vote" value="-1" />
           {% endif %}
           <span class="vote-total">{{ prop.vote_total }}</span>
-          {% if up_vote %}
+          {% if vote == 1 %}
           <input type="image" src="/htdocs/img/thumb_up.png" alt="Undo vote up" name="vote" value="0" />
           {% else %}
           <input type="image" src="/htdocs/img/thumb_up_gray.png" alt="Vote up" name="vote" value="1" />
           {% endif %}
         </form>
       </li>
-      <li>Author: {{ prop.user.nickname }}</li>
+      <li>Author: {{ prop.user.nickname() }}</li>
       <li>State: {{ prop.state }}</li>
     </ul>
   </div>

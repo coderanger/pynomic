@@ -6,63 +6,22 @@ import datetime
 from google.appengine.ext.webapp import template
 from django.template import TemplateDoesNotExist
 import django.template.loader
+import jinja2
 
 from db import File
 
-class TemplateWrapper(object):
-    def __init__(self):
-        self.template_cache = {}
-    
-    def _replace_loader(self, new):
-        old = django.template.loader.template_source_loaders
-        django.template.loader.template_source_loaders = new
-        return old
-    
-    def _loader(self, name, dirs=None):
-        #name = name[:-14]
-        template_file = File.from_path('templates/'+name)
-        if not template_file:
-            raise TemplateDoesNotExist, '%s not found'%name
-        return template_file.data, 'datastore:'+name
-    
-    def render(self, template_path, template_dict, debug=True):
-        logging.debug('Using TemplateWrapper for render of %s', template_path)
-        t = self.load(template_path, debug)
-        return t.render(template.Context(template_dict))
-    
-    def load(self, path, debug=False):
-        #if path == 'templates/base.html':
-        #    return template.load(path, debug)
-        
-        old_loaders = self._replace_loader([self._loader])
-        old_cache = template.template_cache
-        template.template_cache = self.template_cache
-        try:
-            t = template.load(path, debug)
-        finally:
-            self._replace_loader(old_loaders)
-            template.template_cache = old_cache
-        
-        old_render = t.render
-        def render_wrapper(*args):
-            old_loaders = self._replace_loader([self._loader])
-            old_cache = template.template_cache
-            template.template_cache = self.template_cache
-            try:
-                return old_render(*args)
-            finally:
-                self._replace_loader(old_loaders)
-                template.template_cache = old_cache
-        t.render = render_wrapper
-        return t
-    
-    Template = template.Template
-    Context = template.Context
+class TemplateLoader(jinja2.BaseLoader):
+    def get_source(self, environment, template):
+        path = 'templates/'+template
+        file = File.from_path(path)
+        if not file:
+            return None
+        return file.data, 'datastore:/'+path, lambda: False
 
 
 class Loader(object):
     def __init__(self):
-        self.template_wrapper = TemplateWrapper()
+        self.jinja_env = jinja2.Environment(loader=TemplateLoader())
     
     def load_module(self, name):
         logging.debug('Trying to load %s', name)
@@ -88,7 +47,7 @@ class Loader(object):
                 code = ''
             else:
                 code = 'from __future__ import absolute_import\n' + code_file.data + '\n\n'
-            mod.__dict__['template'] = self.template_wrapper
+            mod.__dict__['env'] = self.jinja_env
             mod.__dict__['__NomicFile__'] = File
             compiled = compile(code, mod.__file__, 'exec')
             exec compiled in mod.__dict__

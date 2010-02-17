@@ -14,7 +14,7 @@ class MainHandler(webapp.RequestHandler):
     
     def get(self):
         user, user_admin, user_url = _user(self)
-        self.response.out.write(template.render('templates/index.html', locals()))
+        self.response.out.write(env.get_template('index.html').render(locals()))
 
 
 routes = [

@@ -29,7 +29,7 @@ class CreateProposalHandler(webapp.RequestHandler):
             'http://ajax.googleapis.com/ajax/libs/jquery/1.4.1/jquery.min.js',
             '/htdocs/jquery.tabby.js',
         ]
-        self.response.out.write(template.render('templates/proposal_create.html', locals()))
+        self.response.out.write(env.get_template('proposal_create.html').render(locals()))
     
     def post(self):
         if self.request.get('preview'):
@@ -53,7 +53,7 @@ class CreateProposalHandler(webapp.RequestHandler):
         formatter = pygments.formatters.get_formatter_by_name('html', nobackground=True)
         highlighted = pygments.highlight(diff_data, lexer, formatter)
         pygments_css = formatter.get_style_defs('  #proposal .code')
-        self.response.out.write(template.render('templates/proposal_preview.html', locals()))
+        self.response.out.write(env.get_template('proposal_preview.html').render(locals()))
 
     def _handle_create(self):
         user, user_admin, user_url = _user(self)
@@ -64,7 +64,7 @@ class CreateProposalHandler(webapp.RequestHandler):
             'http://ajax.googleapis.com/ajax/libs/jquery/1.4.1/jquery.min.js',
             '/htdocs/jquery.tabby.js',
         ]
-        self.response.out.write(template.render('templates/proposal_create.html', locals()))
+        self.response.out.write(env.get_template('proposal_create.html').render(locals()))
     
     def _handle_save(self):
         user, user_admin, user_url = _user(self)
@@ -86,9 +86,7 @@ class ViewProposalHandler(webapp.RequestHandler):
         highlighted = pygments.highlight(prop.diff, lexer, formatter)
         pygments_css = formatter.get_style_defs('  #proposal .code')
         vote = prop.get_vote(user)
-        up_vote = vote == 1
-        down_vote = vote == -1
-        self.response.out.write(template.render('templates/proposal_view.html', locals()))
+        self.response.out.write(env.get_template('proposal_view.html').render(locals()))
     
     def post(self, id):
         if self.request.get('apply'):
@@ -118,4 +116,4 @@ class ListProposalHandler(webapp.RequestHandler):
         total_props = Proposal.all().count()
         page = int(self.request.get('p', 1))-1
         props = Proposal.all().order('-vote_total').fetch(10, page*10)
-        self.response.out.write(template.render('templates/proposal_list.html', locals()))
+        self.response.out.write(env.get_template('proposal_list.html').render(locals()))

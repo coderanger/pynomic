@@ -41,7 +41,7 @@ class BrowserHandler(webapp.RequestHandler):
         if path:
             up_path = '/browser/' + '/'.join(path.rstrip('/').split('/')[:-1])
             up_path = up_path.rstrip('/')
-        self.response.out.write(template.render('templates/browser.html', locals()))
+        self.response.out.write(env.get_template('browser.html').render(locals()))
     
     def _path_info(self, path):
         if not path:
@@ -63,4 +63,4 @@ class BrowserHandler(webapp.RequestHandler):
         highlighted = pygments.highlight(file.data, lexer, formatter)
         pygments_css = formatter.get_style_defs('  #browser .code')
         latest_file = File.from_path(file.path)
-        self.response.out.write(template.render('templates/browser_file.html', locals()))
+        self.response.out.write(env.get_template('browser_file.html').render(locals()))

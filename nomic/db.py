@@ -69,6 +69,7 @@ class Proposal(db.Model):
         db.run_in_transaction(txn)
         logging.debug('Proposal[%s] Recording %s voting %s', self.key().id(), user.email(), newvote)
 
+
 class Vote(db.Model):
     """Storage for a single vote by a single user on a single proposal.
     

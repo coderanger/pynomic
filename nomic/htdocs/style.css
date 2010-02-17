@@ -13,7 +13,7 @@ div#header h1{padding: 30px 0 20px;color: #fff}
 ul#nav,ul#nav li,ul#userbar,ul#userbar li{list-style-type:none;margin:0;padding:0}
 ul#nav{float:left;font-size: 80%}
 ul#userbar{float:right;font-size: 80%}
-ul#nav li,ul#userbar li{float:left;margin-left: 3px;text-align: center}
+ul#nav li,ul#userbar li{float:left;margin-left: 5px;text-align: center}
 ul#nav a,ul#userbar a,ul#userbar span{float:left;width: 95px;padding: 5px 0;background: #E7F1F8;text-decoration:none;color: #666; border-top : 1px solid #fff; border-left : 1px solid #fff; border-right : 1px solid #fff;}
 ul#userbar span{width: auto;padding: 5px 7px;}
 ul#nav a:hover,ul#userbar a:hover;{background: #fff;color: #000}

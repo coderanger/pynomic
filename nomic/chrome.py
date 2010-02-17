@@ -1,4 +1,7 @@
 # Copyright 2010 Noah Kantrowitz
+from google.appengine.ext import webapp
+import pygments
+import pygments.formatters
 
 def add_link(req, rel, href, title=None, mimetype=None, classname=None):
     link = {
@@ -23,3 +26,12 @@ def add_script(req, filename, mimetype='text/javascript'):
         'mimetype': mimetype,
     }
     req._head_js.append(js)
+
+class PygmentsHandler(webapp.RequestHandler):
+    
+    def get(self):
+        formatter = pygments.formatters.get_formatter_by_name('html', linenos='table', lineanchors='line', anchorlinenos=True, nobackground=True)
+        self.response.headers['Content-Type'] = 'text/css'
+        self.response.out.write(formatter.get_style_defs('.code'))
+        
+        

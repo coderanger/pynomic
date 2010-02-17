@@ -7,6 +7,7 @@ from google.appengine.ext.webapp.util import login_required
 
 from nomic.browser import BrowserHandler
 from nomic.proposal import CreateProposalHandler, ViewProposalHandler, ListProposalHandler
+from nomic.chrome import PygmentsHandler
 from nomic.util import _user
 
 class MainHandler(webapp.RequestHandler):
@@ -30,4 +31,5 @@ routes = [
     ('/proposal/(\d+)', ViewProposalHandler),
     ('/proposal(?:/)?', ListProposalHandler),
     ('/about', AboutHandler),
+    ('/pygments.css', PygmentsHandler),
 ]

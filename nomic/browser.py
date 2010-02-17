@@ -3,6 +3,7 @@ import pygments
 import pygments.lexers
 import pygments.formatters
 
+from nomic.chrome import add_stylesheet
 from nomic.db import File
 from nomic.util import _user
 
@@ -62,6 +63,6 @@ class BrowserHandler(webapp.RequestHandler):
         lexer = pygments.lexers.guess_lexer_for_filename(file.path, file.data)
         formatter = pygments.formatters.get_formatter_by_name('html', linenos='table', lineanchors='line', anchorlinenos=True, nobackground=True)
         highlighted = pygments.highlight(file.data, lexer, formatter)
-        pygments_css = formatter.get_style_defs('  #browser .code')
         latest_file = File.from_path(file.path)
+        add_stylesheet(self.request, '/pygments.css')
         self.response.out.write(self.env.get_template('browser_file.html').render(locals()))

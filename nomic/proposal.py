@@ -50,7 +50,7 @@ class CreateProposalHandler(webapp.RequestHandler):
         lexer = pygments.lexers.get_lexer_by_name('diff')
         formatter = pygments.formatters.get_formatter_by_name('html', nobackground=True)
         highlighted = pygments.highlight(diff_data, lexer, formatter)
-        pygments_css = formatter.get_style_defs('  #proposal .code')
+        add_stylesheet(self.request, '/pygments.css')
         self.response.out.write(self.env.get_template('proposal_preview.html').render(locals()))
 
     def _handle_create(self):
@@ -58,10 +58,8 @@ class CreateProposalHandler(webapp.RequestHandler):
         path = self.request.get('path')
         data = self.request.get('data').replace('    ', '\t')
         title = self.request.get('title')
-        js_files = [
-            'http://ajax.googleapis.com/ajax/libs/jquery/1.4.1/jquery.min.js',
-            '/htdocs/jquery.tabby.js',
-        ]
+        add_script(self.request, 'http://ajax.googleapis.com/ajax/libs/jquery/1.4.1/jquery.min.js')
+        add_script(self.request, '/htdocs/jquery.tabby.js')
         self.response.out.write(self.env.get_template('proposal_create.html').render(locals()))
     
     def _handle_save(self):
@@ -84,6 +82,7 @@ class ViewProposalHandler(webapp.RequestHandler):
         highlighted = pygments.highlight(prop.diff, lexer, formatter)
         pygments_css = formatter.get_style_defs('  #proposal .code')
         vote = prop.get_vote(user)
+        add_stylesheet(self.request, '/pygments.css')
         self.response.out.write(self.env.get_template('proposal_view.html').render(locals()))
     
     def post(self, id):

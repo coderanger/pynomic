@@ -20,9 +20,15 @@
     / <a href="/browser{{ seg.path }}">{{ seg.seg }}</a>
     {% endfor %}
   </div>
+  {% if mode == 'code' %}
   <div class="code">
   {{ highlighted }}
   </div>
+  {% elif mode == 'image' %}
+  <img src="/browser/{{ file.path }}?format=raw" />
+  {% elif mode == 'binary' %}
+  Binary file, no web view available yet.
+  {% endif %}
 </div>
 
 <div id="right">

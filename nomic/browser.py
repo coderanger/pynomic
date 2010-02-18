@@ -1,3 +1,5 @@
+import mimetypes
+
 from google.appengine.ext import webapp
 import pygments
 import pygments.lexers
@@ -60,9 +62,20 @@ class BrowserHandler(webapp.RequestHandler):
     
     def _get_file(self, path, path_segs, file):
         user, user_admin, user_url = _user(self)
-        lexer = pygments.lexers.guess_lexer_for_filename(file.path, file.data)
-        formatter = pygments.formatters.get_formatter_by_name('html', linenos='table', lineanchors='line', anchorlinenos=True, nobackground=True)
-        highlighted = pygments.highlight(file.data, lexer, formatter)
-        latest_file = File.from_path(file.path)
-        add_stylesheet(self.request, '/pygments.css')
+        mime_type, encoding = mimetypes.guess_type(file.path, False)
+        if mime_type.startswith('text') or mime_type == 'application/javascript':
+            mode = 'code'
+            lexer = pygments.lexers.guess_lexer_for_filename(file.path, file.data)
+            formatter = pygments.formatters.get_formatter_by_name('html', linenos='table', lineanchors='line', anchorlinenos=True, nobackground=True)
+            highlighted = pygments.highlight(file.data, lexer, formatter)
+            latest_file = File.from_path(file.path)
+            add_stylesheet(self.request, '/pygments.css')
+        elif mime_type.startswith('image'):
+            mode = 'image'
+            if self.request.get('format') == 'raw':
+                self.response.headers['Content-Type'] = mime_type
+                self.response.out.write(file.data)
+                return
+        else:
+            mode = 'binary'
         self.response.out.write(self.env.get_template('browser_file.html').render(locals()))

@@ -78,4 +78,10 @@ class BrowserHandler(webapp.RequestHandler):
                 return
         else:
             mode = 'binary'
+            if self.request.get('format') == 'raw':
+                self.response.headers['Content-Disposition'] = 'attachment'
+                self.response.headers['Content-Type'] = mime_type
+                self.response.out.write(file.data)
+                return
+                
         self.response.out.write(self.env.get_template('browser_file.html').render(locals()))

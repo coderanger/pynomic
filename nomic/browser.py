@@ -62,26 +62,23 @@ class BrowserHandler(webapp.RequestHandler):
     
     def _get_file(self, path, path_segs, file):
         user, user_admin, user_url = _user(self)
+        latest_file = File.from_path(file.path)
         mime_type, encoding = mimetypes.guess_type(file.path, False)
         if mime_type.startswith('text'):
             mode = 'code'
             lexer = pygments.lexers.guess_lexer_for_filename(file.path, file.data)
             formatter = pygments.formatters.get_formatter_by_name('html', linenos='table', lineanchors='line', anchorlinenos=True, nobackground=True)
             highlighted = pygments.highlight(file.data, lexer, formatter)
-            latest_file = File.from_path(file.path)
             add_stylesheet(self.request, '/pygments.css')
         elif mime_type.startswith('image'):
             mode = 'image'
-            if self.request.get('format') == 'raw':
-                self.response.headers['Content-Type'] = mime_type
-                self.response.out.write(file.data)
-                return
         else:
             mode = 'binary'
-            if self.request.get('format') == 'raw':
+        
+        if self.request.get('format') == 'raw':
+            if mode == 'binary':
                 self.response.headers['Content-Disposition'] = 'attachment'
-                self.response.headers['Content-Type'] = mime_type
-                self.response.out.write(file.data)
-                return
-                
-        self.response.out.write(self.env.get_template('browser_file.html').render(locals()))
+            self.response.headers['Content-Type'] = mime_type
+            self.response.out.write(file.data)
+        else:
+            self.response.out.write(self.env.get_template('browser_file.html').render(locals()))

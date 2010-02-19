@@ -63,7 +63,7 @@ class BrowserHandler(webapp.RequestHandler):
     def _get_file(self, path, path_segs, file):
         user, user_admin, user_url = _user(self)
         mime_type, encoding = mimetypes.guess_type(file.path, False)
-        if mime_type.startswith('text') or mime_type == 'application/javascript':
+        if mime_type.startswith('text'):
             mode = 'code'
             lexer = pygments.lexers.guess_lexer_for_filename(file.path, file.data)
             formatter = pygments.formatters.get_formatter_by_name('html', linenos='table', lineanchors='line', anchorlinenos=True, nobackground=True)

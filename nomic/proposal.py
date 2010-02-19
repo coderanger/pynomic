@@ -1,4 +1,5 @@
 import difflib
+import mimetypes
 
 from google.appengine.ext import webapp, db
 from google.appengine.api import users
@@ -18,16 +19,19 @@ class CreateProposalHandler(webapp.RequestHandler):
     def get(self):
         user, user_admin, user_url = _user(self)
         path = self.request.get('path')
+        title = path
         f = File.from_path(path)
         if not f:
             send_error(self, '%s not found', path)
             return
-        data = f.data.replace('    ', '\t')
-        title = path
-        
-        add_script(self.request, 'http://ajax.googleapis.com/ajax/libs/jquery/1.4.1/jquery.min.js')
-        add_script(self.request, '/htdocs/jquery.tabby.js')
-        self.response.out.write(self.env.get_template('proposal_create.html').render(locals()))
+        mime_type, encoding = mimetypes.guess_type(f.path, False)
+        if mime_type.startswith('text'):
+            data = f.data.replace('    ', '\t')
+            add_script(self.request, 'http://ajax.googleapis.com/ajax/libs/jquery/1.4.1/jquery.min.js')
+            add_script(self.request, '/htdocs/jquery.tabby.js')
+            self.response.out.write(self.env.get_template('proposal_create.html').render(locals()))
+        else:
+            self.response.out.write(self.env.get_template('proposal_create_binary.html').render(locals()))
     
     def post(self):
         if self.request.get('preview'):

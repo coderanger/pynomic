@@ -205,6 +205,7 @@ class AdminHandler(webapp.RequestHandler):
 def main():
     logging.getLogger().setLevel(logging.DEBUG)
     MetaImporter.install()
+    mimetypes.add_type('text/javascript', '.js')
     application = webapp.WSGIApplication([('/edit/(.*)', EditHandler),
                                           ('/admin', AdminHandler),
                                           ('/htdocs/(.*)', HtdocsHandler),

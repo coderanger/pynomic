@@ -41,6 +41,7 @@ class BrowserHandler(webapp.RequestHandler):
                     'file': f,
                     'name': sub_path,
                 })
+        files.sort(key=lambda f: f['name'])
         up_path = None
         if path:
             up_path = '/browser/' + '/'.join(path.rstrip('/').split('/')[:-1])

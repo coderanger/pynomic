@@ -8,9 +8,9 @@ import pygments
 import pygments.lexers
 import pygments.formatters
 
-from nomic.db import File, Proposal, Change, PatchChange
+from nomic.db import File, Proposal, Change, PatchChange, BinaryChange
 from nomic.util import _user, send_error
-from nomic.patch import fromstring
+
 from nomic.chrome import add_stylesheet, add_script
 
 class CreateProposalHandler(webapp.RequestHandler):
@@ -40,6 +40,8 @@ class CreateProposalHandler(webapp.RequestHandler):
             self._handle_create()
         elif self.request.get('save'):
             self._handle_save()
+        elif self.request.get('save_binary'):
+            self._handle_save_binary()
     
     def _handle_preview(self):
         user, user_admin, user_url = _user(self)
@@ -77,15 +79,49 @@ class CreateProposalHandler(webapp.RequestHandler):
         db.run_in_transaction(txn)
         self.redirect('/proposal/%s'%prop.key().id())
 
+    def _handle_save_binary(self):
+        user, user_admin, user_url = _user(self)
+        prop = Proposal(title=self.request.get('title'), state='private')
+        data = self.request.get('newfile')
+        path = self.request.get('path')
+        def txn():
+            prop.put()
+            change = BinaryChange(parent=prop, path=path)
+            change.data = data
+            #if len(change.data) == 0:
+            #    raise ValueError, 'Data is empty'
+            change.put()
+            
+        db.run_in_transaction(txn)
+        self.redirect('/proposal/%s'%prop.key().id())
+
 class ViewProposalHandler(webapp.RequestHandler):
     
     def get(self, id):
         user, user_admin, user_url = _user(self)
         prop = Proposal.get_by_id(int(id))
-        changes = Change.all().ancestor(prop).fetch(100)
+        if self.request.get('change'):
+            self._handle_change(prop, self.request.get('change'))
+            return
+        changes_db = Change.all().ancestor(prop).order('created').fetch(100)
+        changes = []
         lexer = pygments.lexers.get_lexer_by_name('diff')
         formatter = pygments.formatters.get_formatter_by_name('html', nobackground=True)
-        highlighted = pygments.highlight(changes[0].diff, lexer, formatter)
+        for change_db in changes_db:
+            change = {
+                'db': change_db,
+            }
+            if change_db.class_name() == 'PatchChange':
+                change['type'] = 'patch'
+                change['highlighted'] = pygments.highlight(change_db.diff, lexer, formatter)
+            elif change_db.class_name() == 'BinaryChange':
+                mime_type, encoding = mimetypes.guess_type(change_db.path, False)
+                if mime_type.startswith('image'):
+                    change['type'] = 'image'
+                else:
+                    change['type'] = 'binary'
+            changes.append(change)
+        
         vote = prop.get_vote(user)
         add_stylesheet(self.request, '/pygments.css')
         self.response.out.write(self.env.get_template('proposal_view.html').render(locals()))
@@ -107,9 +143,29 @@ class ViewProposalHandler(webapp.RequestHandler):
             self.redirect(self.request.path)
             return
         prop = Proposal.get_by_id(int(id))
-        p = fromstring(prop.diff)
-        p.apply()
-        self.redirect('/browser/'+prop.path)
+        changes = Change.all().ancestor(prop).order('created').fetch(100)
+        def txn():
+            for change in changes:
+                change.apply()
+        #db.run_in_transaction(txn)
+        txn()
+        self.redirect(self.request.path)
+    
+    def _handle_change(self, prop, change_id):
+        change = Change.get_by_id(int(change_id), parent=prop)
+        if not change:
+            send_error(self, 'Change %s not found', change_id, status=404)
+            return
+        if self.request.get('format') == 'raw':
+            if change.class_name() == 'PatchChange':
+                self.response.headers['Content-Type'] = 'text/diff'
+                self.response.write(change.diff)
+            elif change.class_name() == 'BinaryChange':
+                mime_type, encoding = mimetypes.guess_type(change.path, False)
+                self.response.headers['Content-Type'] = mime_type
+                if not mime_type.startswith('image'):
+                    self.response.headers['Content-Disposition'] = 'attachment'
+                self.response.out.write(change.data)
 
 class ListProposalHandler(webapp.RequestHandler):
     

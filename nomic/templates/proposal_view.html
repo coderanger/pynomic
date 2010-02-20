@@ -3,9 +3,19 @@
 {% block content %}
 <div id="proposal">
   <h1>{{ prop.title }}</h1>
-  <div class="code">
-  {{ highlighted }}
+  {% for change in changes %}
+  <div id="change{{ loop.index }}">
+    {% if change.type == 'patch' %}
+    <div class="code">
+    {{ change.highlighted }}
+    </div>
+    {% elif change.type == 'image' %}
+    <img src="/proposal/{{ prop.key().id() }}?change={{ change.db.key().id() }}&format=raw" />
+    {% elif change.type == 'binary' %}
+    No preview available. <img src="/proposal/{{ prop.key().id() }}?change={{ change.db.key().id() }}&format=raw" />Download</a>.
+    {% endif %}
   </div>
+  {% endfor %}
   <form method="post">
     <p>
       {% if user_admin %}

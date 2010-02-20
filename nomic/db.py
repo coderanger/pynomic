@@ -4,6 +4,8 @@ from google.appengine.ext import db
 from google.appengine.ext.db import polymodel
 from google.appengine.api import memcache
 
+from nomic.patch import fromstring
+
 File = __NomicFile__
 
 class User(db.Model):
@@ -79,6 +81,7 @@ class Change(polymodel.PolyModel):
       path: The path to the file this is a diff for.
     """
     path = db.StringProperty()
+    created = db.DateTimeProperty(auto_now_add=True)
 
 
 class PatchChange(Change):
@@ -92,6 +95,10 @@ class PatchChange(Change):
       diff: The text of the diff.
     """
     diff = db.TextProperty()
+    
+    def apply(self):
+        patch = fromstring(prop.diff)
+        patch.apply()
 
 
 class BinaryChange(Change):
@@ -105,7 +112,10 @@ class BinaryChange(Change):
       data: The new data for the file.
     """
     data = db.BlobProperty()
-
+    
+    def apply(self):
+        file = File.from_path(self.path)
+        file.new_version(self.data)
 
 
 class Vote(db.Model):

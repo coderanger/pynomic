@@ -25,7 +25,7 @@ def _user(self):
         url = users.create_login_url(self.request.uri)
     return user, is_admin, url
 
-def send_error(handler, msg, *args):
-    handler.response.set_status(500)
+def send_error(handler, msg, *args, **kwargs):
+    handler.response.set_status(kwargs.get('status', 500))
     msg = msg % args
-    handler.response.out.write(template.render('templates/error.html', locals()))
+    handler.response.out.write(handler.env.get_template('error.html').render(locals()))

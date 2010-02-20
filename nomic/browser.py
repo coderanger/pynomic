@@ -22,7 +22,8 @@ class BrowserHandler(webapp.RequestHandler):
         user, user_admin, user_url = _user(self)
         files = []
         dirs = set()
-        for f in File.all().fetch(1000):
+        files_memo = set()
+        for f in File.all().order('version').fetch(1000):
             if not f.path.startswith(path):
                 continue
             sub_path = f.path[len(path):]
@@ -36,11 +37,13 @@ class BrowserHandler(webapp.RequestHandler):
                         'path': path+dir_path,
                     })
             else:
-                files.append({
-                    'is_dir': False,
-                    'file': f,
-                    'name': sub_path,
-                })
+                if f.path not in files_memo:
+                    files_memo.add(f.path)
+                    files.append({
+                        'is_dir': False,
+                        'file': f,
+                        'name': sub_path,
+                    })
         files.sort(key=lambda f: f['name'])
         up_path = None
         if path:

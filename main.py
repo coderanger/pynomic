@@ -64,6 +64,8 @@ class MainHandler(webapp.RequestHandler):
         groups = ()
         if not hasattr(nomic.main, 'routes'):
             reload(nomic.main)
+            if not hasattr(nomic.main, 'routes'):
+                raise Exception, 'Code invalid'
         self._compile_routes(nomic.main.routes)
         for regexp, handler_class in self.compiled_routes:
           match = regexp.match(self.request.path)

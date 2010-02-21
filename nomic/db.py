@@ -4,8 +4,6 @@ from google.appengine.ext import db
 from google.appengine.ext.db import polymodel
 from google.appengine.api import memcache
 
-from nomic.patch import fromstring
-
 File = __NomicFile__
 
 class User(db.Model):
@@ -37,6 +35,10 @@ class Proposal(db.Model):
     # published
     # applied
     vote_total = db.IntegerProperty(default=0)
+    
+    @property
+    def changes(self):
+        return Change.all().ancestor(self).fetch(1000)
     
     def get_vote(self, user):
         """Returns the value of a users vote on this proposal a value in [-1, 0, 1]."""
@@ -97,7 +99,8 @@ class PatchChange(Change):
     diff = db.TextProperty()
     
     def apply(self):
-        patch = fromstring(prop.diff)
+        from nomic.patch import fromstring
+        patch = fromstring(self.diff)
         patch.apply()
 
 

@@ -21,6 +21,14 @@
     </p>
     <p>
       <input type="submit" name="save_binary" value="Save" />
+      {% if user_props %}
+      <input type="submit" name="append_binary" value="Append to" />
+      <select name="append_to">
+        {% for prop in user_props %}
+        <option value="{{ prop.key().id() }}">{{ prop.title }}</option>
+        {% endfor %}
+      </select>
+      {% endif %}
     </p>
   </form>
 </div>

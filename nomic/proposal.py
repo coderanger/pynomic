@@ -31,6 +31,7 @@ class CreateProposalHandler(webapp.RequestHandler):
             add_script(self.request, '/htdocs/jquery.tabby.js')
             self.response.out.write(self.env.get_template('proposal_create.html').render(locals()))
         else:
+            user_props = Proposal.all().filter('state', 'private').filter('user', user.user).fetch(100)
             self.response.out.write(self.env.get_template('proposal_create_binary.html').render(locals()))
     
     def post(self):
@@ -42,6 +43,10 @@ class CreateProposalHandler(webapp.RequestHandler):
             self._handle_save()
         elif self.request.get('save_binary'):
             self._handle_save_binary()
+        elif self.request.get('append'):
+            self._handle_save(self.request.get('append_to'))
+        elif self.request.get('append_binary'):
+            self._handle_save_binary(self.request.get('append_to'))
     
     def _handle_preview(self):
         user, user_admin, user_url = _user(self)
@@ -56,6 +61,7 @@ class CreateProposalHandler(webapp.RequestHandler):
         lexer = pygments.lexers.get_lexer_by_name('diff')
         formatter = pygments.formatters.get_formatter_by_name('html', nobackground=True)
         highlighted = pygments.highlight(diff_data, lexer, formatter)
+        user_props = Proposal.all().filter('state', 'private').filter('user', user.user).fetch(100)
         add_stylesheet(self.request, '/pygments.css')
         self.response.out.write(self.env.get_template('proposal_preview.html').render(locals()))
 
@@ -68,28 +74,31 @@ class CreateProposalHandler(webapp.RequestHandler):
         add_script(self.request, '/htdocs/jquery.tabby.js')
         self.response.out.write(self.env.get_template('proposal_create.html').render(locals()))
     
-    def _handle_save(self):
+    def _handle_save(self, prop_id=None):
         user, user_admin, user_url = _user(self)
-        prop = Proposal(title=self.request.get('title'), state='private')
+        if prop_id is None:
+            prop = Proposal(title=self.request.get('title'), state='private')
+        else:
+            prop = Proposal.get_by_id(int(prop_id))
         def txn():
-            prop.put()
+            if prop_id is None:
+                prop.put()
             change = PatchChange(parent=prop, path=self.request.get('path'), diff=self.request.get('diff'))
             change.put()
             
         db.run_in_transaction(txn)
         self.redirect('/proposal/%s'%prop.key().id())
 
-    def _handle_save_binary(self):
+    def _handle_save_binary(self, prop_id=None):
         user, user_admin, user_url = _user(self)
-        prop = Proposal(title=self.request.get('title'), state='private')
-        data = self.request.get('newfile')
-        path = self.request.get('path')
+        if prop_id is None:
+            prop = Proposal(title=self.request.get('title'), state='private')
+        else:
+            prop = Proposal.get_by_id(int(prop_id))
         def txn():
-            prop.put()
-            change = BinaryChange(parent=prop, path=path)
-            change.data = data
-            #if len(change.data) == 0:
-            #    raise ValueError, 'Data is empty'
+            if prop_id is None:
+                prop.put()
+            change = BinaryChange(parent=prop, path=self.request.get('path'), data=self.request.get('newfile'))
             change.put()
             
         db.run_in_transaction(txn)
@@ -175,3 +184,4 @@ class ListProposalHandler(webapp.RequestHandler):
         page = int(self.request.get('p', 1))-1
         props = Proposal.all().order('-vote_total').fetch(10, page*10)
         self.response.out.write(self.env.get_template('proposal_list.html').render(locals()))
+

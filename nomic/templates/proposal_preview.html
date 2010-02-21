@@ -13,6 +13,14 @@
     <p>
       <input type="submit" name="create" value="Edit" />
       <input type="submit" name="save" value="Save" />
+      {% if user_props %}
+      <input type="submit" name="append" value="Append to" />
+      <select name="append_to">
+        {% for prop in user_props %}
+        <option value="{{ prop.key().id() }}">{{ prop.title }}</option>
+        {% endfor %}
+      </select>
+      {% endif %}
     </p>
   </form>
 </div>

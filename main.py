@@ -179,7 +179,7 @@ class AdminHandler(webapp.RequestHandler):
         reloads = []
         for dir, dirs, files in os.walk('nomic'):
             for name in files:
-                if name.startswith('.'):
+                if name.startswith('.') or name.endswith('.pyc'):
                     continue
                 path = os.path.join(dir, name)[6:]
                 db_file = File.from_path(path)

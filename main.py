@@ -29,6 +29,7 @@ from google.appengine.api.urlfetch import fetch
 from google.appengine.api import images, users
 import jinja2
 
+import _linecache
 from db import File
 from wrapper import MetaImporter, TemplateLoader
 
@@ -208,6 +209,9 @@ def main():
     logging.getLogger().setLevel(logging.DEBUG)
     MetaImporter.install()
     mimetypes.add_type('text/javascript', '.js')
+    sys.modules['linecache'] = _linecache
+    if 'traceback' in sys.modules:
+        sys.modules['traceback'].linecache = _linecache
     application = webapp.WSGIApplication([('/edit/(.*)', EditHandler),
                                           ('/admin', AdminHandler),
                                           ('/htdocs/(.*)', HtdocsHandler),

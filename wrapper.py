@@ -67,12 +67,12 @@ class Loader(object):
     def get_source(self, name):
         pkg = self.is_package(name)
         if pkg:
-            return pkg.data
+            return '\n'+pkg.data
         path = self._modname_to_path(name)
         code_file = File.from_path(path)
         if not code_file:
             return None
-        return file.data
+        return '\n'+code_file.data
     
     def is_package(self, name):
         path = self._pkgname_to_path(name)

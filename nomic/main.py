@@ -26,7 +26,7 @@ class AboutHandler(webapp.RequestHandler):
 
 routes = [
     ('/', MainHandler),
-    ('/browser(?:/(.*))?', BrowserHandler),
+    ('/browser(.*)', BrowserHandler),
     ('/proposal/create', CreateProposalHandler),
     ('/proposal/(\d+)', ViewProposalHandler),
     ('/proposal(?:/)?', ListProposalHandler),

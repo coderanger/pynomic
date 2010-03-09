@@ -25,19 +25,19 @@
   {{ highlighted }}
   </div>
   {% elif mode == 'image' %}
-  <img src="/browser/{{ file.path }}?format=raw" />
+  <img src="/browser{{ file.parent().path }}?format=raw" />
   {% elif mode == 'binary' %}
   This is a binary file. There is no web preview, but you can 
-  <a href="/browser/{{ file.path }}?format=raw">download</a> the file.
+  <a href="/browser{{ file.parent().path }}?format=raw">download</a> the file.
   {% endif %}
 </div>
 
 <div id="right">
   <div class="box">
     <ul>
-      <li><a href="/proposal/create?path={{ path }}">Create proposal</a></li>
+      <li><a href="/proposal/create?path={{ file.parent().path }}">Create proposal</a></li>
       {% if user_admin %}
-      <li><a href="/edit/{{ path }}">Edit</a></li>
+      <li><a href="/edit{{ file.parent().path }}">Edit</a></li>
       {% endif %}
     </ul>
   </div>

@@ -1,4 +1,5 @@
 import mimetypes
+import logging
 
 from google.appengine.ext import webapp
 import pygments
@@ -6,27 +7,42 @@ import pygments.lexers
 import pygments.formatters
 
 from nomic.chrome import add_stylesheet
-from nomic.db import File
-from nomic.util import _user
+from nomic.db import DirEntry
+from nomic.util import _user, send_error
 
 class BrowserHandler(webapp.RequestHandler):
     
-    def get(self, path=None):
-        path, path_segs, file = self._path_info(path)
-        if file:
-            return self._get_file(path, path_segs, file)
+    def get(self, path):
+        # Compute the info for the top-bar navigation
+        path_segs = []
+        buf = ''
+        for seg in path.strip('/').split('/'):
+            buf += '/' + seg 
+            path_segs.append({'path':buf, 'seg':seg})
+        
+        if not path:
+            path = '/'
+        dir = DirEntry.from_path(path)
+        
+        if not dir:
+            send_error(self, 'Directory entry %s not found', path)
+            return
+        
+        if not dir.children.count(1000):
+            if dir.latest:
+                self._get_file(path, path_segs, dir)
+            else:
+                send_error(self, 'File %s has no versions', dir.path)
         else:
-            return self._get_folder(path, path_segs, file)
+            self._get_folder(path, path_segs, dir)
     
-    def _get_folder(self, path, path_segs, file):
+    def _get_folder(self, path, path_segs, dir):
         user, user_admin, user_url = _user(self)
         files = []
         dirs = set()
         files_memo = set()
-        for f in File.all().order('version').fetch(1000):
-            if not f.path.startswith(path):
-                continue
-            sub_path = f.path[len(path):]
+        for child in dir.children.fetch(1000):
+            sub_path = child.path[len(path):]
             if '/' in sub_path:
                 dir_path = sub_path[:sub_path.find('/')]
                 if dir_path not in dirs:
@@ -37,11 +53,11 @@ class BrowserHandler(webapp.RequestHandler):
                         'path': path+dir_path,
                     })
             else:
-                if f.path not in files_memo:
-                    files_memo.add(f.path)
+                if child.path not in files_memo:
+                    files_memo.add(child.path)
                     files.append({
                         'is_dir': False,
-                        'file': f,
+                        'file': child,
                         'name': sub_path,
                     })
         files.sort(key=lambda f: f['name'])
@@ -51,26 +67,17 @@ class BrowserHandler(webapp.RequestHandler):
             up_path = up_path.rstrip('/')
         self.response.out.write(self.env.get_template('browser.html').render(locals()))
     
-    def _path_info(self, path):
-        if not path:
-            return '', [], None
-        path_segs = []
-        buf = ''
-        for seg in path.rstrip('/').split('/'):
-            buf += '/' + seg 
-            path_segs.append({'path':buf, 'seg':seg})
-        f = File.from_path(path, version=self.request.get('version', None))
-        if not f and not path.endswith('/'):
-            path += '/'
-        return path, path_segs, f
-    
-    def _get_file(self, path, path_segs, file):
+    def _get_file(self, path, path_segs, dir):
         user, user_admin, user_url = _user(self)
-        latest_file = File.from_path(file.path)
-        mime_type, encoding = mimetypes.guess_type(file.path, False)
+        if self.request.get('version'):
+            file = dir.version(self.request.get('version'))
+        else:
+            file = dir.latest
+        latest_file = dir.latest
+        mime_type, encoding = mimetypes.guess_type(dir.path, False)
         if mime_type.startswith('text'):
             mode = 'code'
-            lexer = pygments.lexers.guess_lexer_for_filename(file.path, file.data)
+            lexer = pygments.lexers.guess_lexer_for_filename(dir.path, file.data)
             formatter = pygments.formatters.get_formatter_by_name('html', linenos='table', lineanchors='line', anchorlinenos=True, nobackground=True)
             highlighted = pygments.highlight(file.data, lexer, formatter)
             add_stylesheet(self.request, '/pygments.css')

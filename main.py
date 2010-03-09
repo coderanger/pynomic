@@ -30,7 +30,7 @@ from google.appengine.api import images, users
 import jinja2
 
 import _linecache
-from db import File
+from db import DirEntry
 from wrapper import MetaImporter, TemplateLoader
 
 def _user(self):
@@ -105,15 +105,19 @@ class MainHandler(webapp.RequestHandler):
 class HtdocsHandler(webapp.RequestHandler):
     
     def get(self, path=None):
-        f = File.from_path('htdocs/'+path)
-        if f:
-            mime_type, encoding = mimetypes.guess_type(path, False)
-            if not mime_type:
-                mime_type = 'application/octet-stream'
-            self.response.headers['Content-Type'] = mime_type
-            self.response.out.write(f.data)
-        else:
+        dir = DirEntry.from_path('/htdocs/'+path)
+        if not dir:
             self.error(404)
+            return
+        ver = dir.latest
+        if not ver:
+            self.error(404)
+            return
+        mime_type, encoding = mimetypes.guess_type(dir.path, False)
+        if not mime_type:
+            mime_type = 'application/octet-stream'
+        self.response.headers['Content-Type'] = mime_type
+        self.response.out.write(ver.data)
 
 
 class EditHandler(webapp.RequestHandler):
@@ -175,26 +179,24 @@ class AdminHandler(webapp.RequestHandler):
         self.redirect(self.request.path)
     
     def _reset_files(self):
-        for db_file in File.all().fetch(1000):
-            db_file.delete()
+        for dir in DirEntry.all().fetch(1000):
+            dir.delete()
         reloads = []
-        for dir, dirs, files in os.walk('nomic'):
+        for dirpath, dirs, files in os.walk('nomic'):
             for name in files:
                 if name.startswith('.') or name.endswith('.pyc'):
                     continue
-                path = os.path.join(dir, name)[6:]
-                db_file = File.from_path(path)
-                if not db_file:
-                    db_file = File(path=path)
-                db_file.data = open('nomic/'+path).read()
+                path = os.path.join(dirpath, name)[len('nomic'):]
+                dir = DirEntry.from_path(path, create=True)
+                data = open('nomic/'+path).read()
                 mime_type, encoding = mimetypes.guess_type(path, False)
                 if not mime_type:
                     mime_type = 'application/octet-stream'
                 if mime_type.startswith('text'):
-                    db_file.data = db_file.data.replace('\r\n', '\n')
-                db_file.put()
+                    data = data.replace('\r\n', '\n')
+                dir.new_version(data)
                 if path.endswith('.py'):
-                    mod_name = 'nomic.' + path[:-3].replace('/', '.')
+                    mod_name = 'nomic.' + path[1:-3].replace('/', '.')
                     mod = sys.modules.get(mod_name)
                     if mod is not None:
                         reloads.append(mod)

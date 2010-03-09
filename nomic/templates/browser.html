@@ -30,10 +30,10 @@
     {% for f in files %}
     <tr>
       {% if f.is_dir %}
-      <td><a href="/browser/{{ f.path }}">{{ f.name }}</a></td>
+      <td><a href="/browser{{ f.path }}">{{ f.name }}</a></td>
       <td></td>
       {% else %}
-      <td><a href="/browser/{{ f.file.path }}">{{ f.name }}</a></td>
+      <td><a href="/browser{{ f.file.path }}">{{ f.name }}</a></td>
       <td>{{ f.file.size }}</td>
       {% endif %}
     </tr>

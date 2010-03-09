@@ -20,3 +20,9 @@ indexes:
   - name: path
   - name: version
     direction: desc
+
+- kind: FileVersion
+  ancestor: yes
+  properties:
+  - name: version
+    direction: desc

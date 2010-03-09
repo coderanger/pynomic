@@ -4,7 +4,8 @@ from google.appengine.ext import db
 from google.appengine.ext.db import polymodel
 from google.appengine.api import memcache
 
-File = __NomicFile__
+File = None
+DirEntry = __NomicDirEntry__
 
 class User(db.Model):
     user = db.UserProperty()

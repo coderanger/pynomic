@@ -28,7 +28,7 @@ class BrowserHandler(webapp.RequestHandler):
             send_error(self, 'Directory entry %s not found', path)
             return
         
-        if not dir.children.count(1000):
+        if not dir.children.count(1):
             if dir.latest:
                 self._get_file(path, path_segs, dir)
             else:
@@ -38,31 +38,10 @@ class BrowserHandler(webapp.RequestHandler):
     
     def _get_folder(self, path, path_segs, dir):
         user, user_admin, user_url = _user(self)
-        files = []
-        dirs = set()
-        files_memo = set()
-        for child in dir.children.fetch(1000):
-            sub_path = child.path[len(path):]
-            if '/' in sub_path:
-                dir_path = sub_path[:sub_path.find('/')]
-                if dir_path not in dirs:
-                    dirs.add(dir_path)
-                    files.append({
-                        'is_dir': True,
-                        'name': dir_path,
-                        'path': path+dir_path,
-                    })
-            else:
-                if child.path not in files_memo:
-                    files_memo.add(child.path)
-                    files.append({
-                        'is_dir': False,
-                        'file': child,
-                        'name': sub_path,
-                    })
-        files.sort(key=lambda f: f['name'])
+        children = dir.children.fetch(1000)
+        children.sort(key=lambda f: f.name)
         up_path = None
-        if path:
+        if dir:
             up_path = '/browser/' + '/'.join(path.rstrip('/').split('/')[:-1])
             up_path = up_path.rstrip('/')
         self.response.out.write(self.env.get_template('browser.html').render(locals()))

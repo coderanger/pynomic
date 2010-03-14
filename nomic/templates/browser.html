@@ -21,20 +21,20 @@
     {% endfor %}
   </div>
   <table>
-    {% if up_path %}
+    {% if dir.parent_ %}
     <tr>
-      <td><a class="up_link" href="{{ up_path }}">..</a></td>
+      <td><a class="up_link" href="/browser{{ dir.parent_.path.rstrip('/') }}">..</a></td>
       <td></td>
     </tr>
     {% endif %}
-    {% for f in files %}
+    {% for dir in children %}
     <tr>
-      {% if f.is_dir %}
-      <td><a href="/browser{{ f.path }}">{{ f.name }}</a></td>
+      {% if dir.children.count(1) %}
+      <td><a href="/browser{{ dir.path }}">{{ dir.name }}</a></td>
       <td></td>
       {% else %}
-      <td><a href="/browser{{ f.file.path }}">{{ f.name }}</a></td>
-      <td>{{ f.file.size }}</td>
+      <td><a href="/browser{{ dir.path }}">{{ dir.name }}</a></td>
+      <td>{{ dir.latest.size }}</td>
       {% endif %}
     </tr>
     {% endfor %}

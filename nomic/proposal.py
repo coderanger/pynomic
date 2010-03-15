@@ -9,7 +9,7 @@ import pygments.lexers
 import pygments.formatters
 
 from nomic.db import File, Proposal, Change, PatchChange, BinaryChange
-from nomic.util import _user, send_error
+from nomic.util importsend_error
 
 from nomic.chrome import add_stylesheet, add_script
 
@@ -17,7 +17,6 @@ class CreateProposalHandler(webapp.RequestHandler):
     
     @login_required
     def get(self):
-        user, user_admin, user_url = _user(self)
         path = self.request.get('path')
         title = path
         f = File.from_path(path)
@@ -49,7 +48,6 @@ class CreateProposalHandler(webapp.RequestHandler):
             self._handle_save_binary(self.request.get('append_to'))
     
     def _handle_preview(self):
-        user, user_admin, user_url = _user(self)
         data = self.request.get('data').replace('\t', '    ').replace('\r\n', '\n')
         path = self.request.get('path')
         title = self.request.get('title')
@@ -66,7 +64,6 @@ class CreateProposalHandler(webapp.RequestHandler):
         self.response.out.write(self.env.get_template('proposal_preview.html').render(locals()))
 
     def _handle_create(self):
-        user, user_admin, user_url = _user(self)
         path = self.request.get('path')
         data = self.request.get('data').replace('    ', '\t')
         title = self.request.get('title')
@@ -75,7 +72,6 @@ class CreateProposalHandler(webapp.RequestHandler):
         self.response.out.write(self.env.get_template('proposal_create.html').render(locals()))
     
     def _handle_save(self, prop_id=None):
-        user, user_admin, user_url = _user(self)
         if prop_id is None:
             prop = Proposal(title=self.request.get('title'), state='private')
         else:
@@ -90,7 +86,6 @@ class CreateProposalHandler(webapp.RequestHandler):
         self.redirect('/proposal/%s'%prop.key().id())
 
     def _handle_save_binary(self, prop_id=None):
-        user, user_admin, user_url = _user(self)
         if prop_id is None:
             prop = Proposal(title=self.request.get('title'), state='private')
         else:
@@ -107,7 +102,6 @@ class CreateProposalHandler(webapp.RequestHandler):
 class ViewProposalHandler(webapp.RequestHandler):
     
     def get(self, id):
-        user, user_admin, user_url = _user(self)
         prop = Proposal.get_by_id(int(id))
         if self.request.get('change'):
             self._handle_change(prop, self.request.get('change'))
@@ -179,7 +173,6 @@ class ViewProposalHandler(webapp.RequestHandler):
 class ListProposalHandler(webapp.RequestHandler):
     
     def get(self):
-        user, user_admin, user_url = _user(self)
         total_props = Proposal.all().count()
         page = int(self.request.get('p', 1))-1
         props = Proposal.all().order('-vote_total').fetch(10, page*10)

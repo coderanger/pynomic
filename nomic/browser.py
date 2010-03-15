@@ -8,7 +8,7 @@ import pygments.formatters
 
 from nomic.chrome import add_stylesheet
 from nomic.db import DirEntry
-from nomic.util import _user, send_error
+from nomic.util import send_error
 
 class BrowserHandler(webapp.RequestHandler):
     
@@ -37,7 +37,6 @@ class BrowserHandler(webapp.RequestHandler):
             self._get_folder(path, path_segs, dir)
     
     def _get_folder(self, path, path_segs, dir):
-        user, user_admin, user_url = _user(self)
         children = dir.children.fetch(1000)
         children.sort(key=lambda f: f.name)
         up_path = None
@@ -47,7 +46,6 @@ class BrowserHandler(webapp.RequestHandler):
         self.response.out.write(self.env.get_template('browser.html').render(locals()))
     
     def _get_file(self, path, path_segs, dir):
-        user, user_admin, user_url = _user(self)
         if self.request.get('version'):
             file = dir.version(self.request.get('version'))
         else:

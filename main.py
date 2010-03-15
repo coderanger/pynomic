@@ -73,6 +73,8 @@ class MainHandler(webapp.RequestHandler):
           if match:
             handler = handler_class()
             handler.initialize(self.request, self.response)
+            if hasattr(nomic.main, 'pre_request'):
+                handler = nomic.main.pre_request(handler)
             groups = match.groups()
             break
         

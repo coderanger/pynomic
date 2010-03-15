@@ -20,16 +20,16 @@
    <li><a href="/">Home</a></li>
    <li><a href="/browser">Browser</a></li>
    <li><a href="/proposal">Proposals</a></li>
-   {% if user_admin %}
+   {% if request._user_admin %}
    <li><a href="/admin">Admin</a></li>
    {% endif %}
   </ul>
   <ul id="userbar">
-    {% if user %}
-    <li><span>Hello {{ user.nickname() }}</span></li>
-    <li><a href="{{ user_url }}">Logout</a></li>
+    {% if request._user %}
+    <li><span>Hello {{ request._user.nickname() }}</span></li>
+    <li><a href="{{ request._user_url }}">Logout</a></li>
     {% else %}
-    <li><a href="{{ user_url }}">Login</a></li>
+    <li><a href="{{ request._user_url }}">Login</a></li>
     {% endif %}
   </ul>
  </div>
